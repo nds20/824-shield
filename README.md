@@ -22,7 +22,7 @@ Zero dependencies. Node ≥ 18. ESM.
 ## Quick start
 
 ```bash
-npm test       # 28 attack-simulation tests
+npm test       # 33 attack-simulation tests
 npm run demo   # watch it judge 7 live-fire scenarios
 ```
 
@@ -88,12 +88,22 @@ All thresholds are constructor options on `new Shield({...})`.
 - Header heuristics identify *automation*, not *intent*. Some
   legitimate tools (and some crawlers you may want) look automated —
   that's what the challenge tier and the allowlist are for.
-- This is v0.2.0: a working core, not a finished product.
+- This is v0.3.0: a working core, not a finished product.
+
+## Defending more than one site
+
+Every decision can stream straight into a SIEM (CEF, syslog, or
+NDJSON — see `src/siem.js`), because a detection only defends anyone
+if somebody's console sees it. The long-tail mission — hospitals,
+water utilities, municipalities, and the small operators big systems
+depend on — is laid out in
+[docs/PROTECTING-NATIONS.md](docs/PROTECTING-NATIONS.md).
 
 ## Layout
 
 ```
-src/         injection.js · exploits.js · headers.js · botScore.js · rateLimiter.js · guard.js
+src/         injection.js · exploits.js · headers.js · siem.js · botScore.js · rateLimiter.js · guard.js
+docs/        PROTECTING-NATIONS.md — the critical-infrastructure blueprint
 adapters/    express.js · cloudflare.js
 tests/       attack-simulation suite (node --test)
 demo/        npm run demo

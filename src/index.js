@@ -12,3 +12,4 @@ export { scoreBot } from './botScore.js';
 export { RateLimiter, TokenBucket } from './rateLimiter.js';
 export { scanPayload, scanPath } from './exploits.js';
 export { securityHeaders, applySecurityHeaders } from './headers.js';
+export { formatDecisionCEF, formatDecisionSyslog, formatDecisionJSON, siemAudit } from './siem.js';
