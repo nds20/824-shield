@@ -17,7 +17,8 @@ now targets any app with an AI feature, a login page, or an API:
 Every request gets one decision — **allow**, **challenge**, or **block** —
 with human-readable reasons you can stream straight into your audit log.
 
-Zero dependencies. Node ≥ 18. ESM.
+Zero dependencies. Node ≥ 18. ESM. Runs on **Cloudflare Workers,
+Express, AWS Lambda, and Azure Functions** — one Shield, every cloud.
 
 ## Quick start
 
@@ -117,6 +118,13 @@ adapters/    express.js · cloudflare.js
 tests/       attack-simulation suite (node --test)
 demo/        npm run demo
 ```
+
+## The founder
+
+824 Shield was created by **Nicholas Smith**, founder of 824 —
+Rochester Institute of Technology, B.S. in Criminal Justice and
+B.S. in Information Technology. The full story is on the
+[founder page](docs/FOUNDER.md).
 
 ## License
 
