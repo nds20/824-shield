@@ -20,7 +20,7 @@
 
 const CEF_VENDOR = '824';
 const CEF_PRODUCT = 'Shield';
-const CEF_VERSION = '0.4.0';
+const CEF_VERSION = '0.5.0';
 
 function cefEscape(value) {
   return String(value ?? '').replace(/\\/g, '\\\\').replace(/\|/g, '\\|').replace(/\r?\n/g, ' ');

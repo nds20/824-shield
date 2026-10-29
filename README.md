@@ -17,13 +17,17 @@ now targets any app with an AI feature, a login page, or an API:
 Every request gets one decision — **allow**, **challenge**, or **block** —
 with human-readable reasons you can stream straight into your audit log.
 
-Zero dependencies. Node ≥ 18. ESM. Runs on **Cloudflare Workers,
-Express, AWS Lambda, and Azure Functions** — one Shield, every cloud.
+Zero dependencies. Node ≥ 18. ESM. Runs everywhere apps run:
+**Cloudflare Workers, Vercel, Netlify, Deno, Bun, Fastly, Next.js,
+AWS Lambda, Azure Functions, Google Cloud Functions, Express,
+Fastify, Koa, Hono** — and in front of anything else (PHP,
+WordPress, legacy) via the bundled reverse proxy. The full matrix
+is in [docs/DEPLOYING.md](docs/DEPLOYING.md).
 
 ## Quick start
 
 ```bash
-npm test       # 39 attack-simulation tests
+npm test       # 50 attack-simulation tests
 npm run demo   # watch it judge 7 live-fire scenarios
 ```
 
@@ -97,7 +101,7 @@ All thresholds are constructor options on `new Shield({...})`.
 - Header heuristics identify *automation*, not *intent*. Some
   legitimate tools (and some crawlers you may want) look automated —
   that's what the challenge tier and the allowlist are for.
-- This is v0.4.0: a working core, not a finished product.
+- This is v0.5.0: a working core, not a finished product.
 
 ## Defending more than one site
 
@@ -114,7 +118,9 @@ depend on — is laid out in
 src/         injection.js · exploits.js · headers.js · siem.js · botScore.js · rateLimiter.js · guard.js
 docs/        PROTECTING-NATIONS.md — the critical-infrastructure blueprint
              CLOUD-HARDENING.md — AWS + Azure account checklists
-adapters/    express.js · cloudflare.js
+             DEPLOYING.md — the every-platform matrix
+adapters/    cloudflare · express · aws-lambda · azure-functions · google-cloud · vercel · next · netlify · deno · bun · fastly · hono · fastify · koa
+apps/        shield-proxy.js — guards any stack, no code changes
 tests/       attack-simulation suite (node --test)
 demo/        npm run demo
 ```
