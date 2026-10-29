@@ -19,6 +19,8 @@
 // with KV / Durable Objects, or pair it with Cloudflare rate-limit
 // rules — see "Honest limits" in the README.
 
+import { applySecurityHeaders } from '../src/headers.js';
+
 export function withShield(handler, shield) {
   return async (request, env, ctx) => {
     let bodyText = '';
@@ -47,8 +49,8 @@ export function withShield(handler, shield) {
     if (decision.action === 'challenge') {
       const flagged = new Response(response.body, response);
       flagged.headers.set('X-824-Shield', 'challenge');
-      return flagged;
+      return applySecurityHeaders(flagged);
     }
-    return response;
+    return applySecurityHeaders(response);
   };
 }

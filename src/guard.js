@@ -14,15 +14,21 @@
 import { scanText } from './injection.js';
 import { RateLimiter } from './rateLimiter.js';
 import { scoreBot } from './botScore.js';
+import { scanPayload, scanPath } from './exploits.js';
 
 const DEFAULTS = {
   injectionChallengeAt: 30,
   injectionBlockAt: 60,
+  exploitChallengeAt: 30,
+  exploitBlockAt: 60,
   botChallengeAt: 50,
   botBlockAt: 85,
   rate: { capacity: 60, refillPerSec: 1 },
   login: { maxFailures: 5, windowMs: 15 * 60 * 1000, lockoutMs: 15 * 60 * 1000 },
   allowlist: [],
+  blocklist: [],
+  allowlistIps: [],
+  maxBodyBytes: 1000000,
   onDecision: null,
 };
 
@@ -39,13 +45,26 @@ export class Shield {
     let action = 'allow';
     const ip = ctx.ip || 'unknown';
 
-    const rl = this.limiter.check(`ip:${ip}`);
+    if (this.cfg.blocklist.includes(ip)) {
+      const decision = {
+        action: 'block', ip,
+        method: ctx.method || 'GET', path: ctx.path || '/',
+        scores: { bot: 0, injection: 0, exploit: 0 },
+        reasons: ['Source IP is on the blocklist'],
+        at: new Date().toISOString(),
+      };
+      if (typeof this.cfg.onDecision === 'function') this.cfg.onDecision(decision);
+      return decision;
+    }
+    const trustedIp = this.cfg.allowlistIps.includes(ip);
+
+    const rl = trustedIp ? { allowed: true, retryAfterMs: 0 } : this.limiter.check(`ip:${ip}`);
     if (!rl.allowed) {
       action = 'block';
       reasons.push(`Rate limit exceeded (retry after ~${Math.ceil(rl.retryAfterMs / 1000)}s)`);
     }
 
-    const bot = scoreBot(ctx.headers || {}, { allowlist: this.cfg.allowlist });
+    const bot = trustedIp ? { score: 0, reasons: [] } : scoreBot(ctx.headers || {}, { allowlist: this.cfg.allowlist });
     for (const r of bot.reasons) reasons.push(r);
     if (bot.score >= this.cfg.botBlockAt) action = 'block';
     else if (bot.score >= this.cfg.botChallengeAt && action === 'allow') action = 'challenge';
@@ -58,12 +77,27 @@ export class Shield {
       else if (injection.score >= this.cfg.injectionChallengeAt && action === 'allow') action = 'challenge';
     }
 
+    if (ctx.bodyText && ctx.bodyText.length > this.cfg.maxBodyBytes) {
+      action = 'block';
+      reasons.push(`Payload size ${ctx.bodyText.length} exceeds the ${this.cfg.maxBodyBytes}-byte limit`);
+    }
+
+    const probe = scanPath(ctx.path || '/');
+    const payload = ctx.bodyText ? scanPayload(ctx.bodyText) : { score: 0, hits: [] };
+    const exploit = {
+      score: probe.score + payload.score,
+      hits: [...probe.hits, ...payload.hits],
+    };
+    for (const hit of exploit.hits) reasons.push(`Cyber-exploit signal: ${hit.label}`);
+    if (exploit.score >= this.cfg.exploitBlockAt) action = 'block';
+    else if (exploit.score >= this.cfg.exploitChallengeAt && action === 'allow') action = 'challenge';
+
     const decision = {
       action,
       ip,
       method: ctx.method || 'GET',
       path: ctx.path || '/',
-      scores: { bot: bot.score, injection: injection.score },
+      scores: { bot: bot.score, injection: injection.score, exploit: exploit.score },
       reasons,
       at: new Date().toISOString(),
     };

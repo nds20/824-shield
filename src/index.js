@@ -10,3 +10,5 @@ export { Shield } from './guard.js';
 export { scanText, normalizeForScan } from './injection.js';
 export { scoreBot } from './botScore.js';
 export { RateLimiter, TokenBucket } from './rateLimiter.js';
+export { scanPayload, scanPath } from './exploits.js';
+export { securityHeaders, applySecurityHeaders } from './headers.js';

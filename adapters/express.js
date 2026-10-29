@@ -19,6 +19,18 @@
 // In your login handler, call shield.recordLoginFailure(ip, email) on a
 // bad password and shield.recordLoginSuccess(ip, email) on success.
 
+import { securityHeaders } from '../src/headers.js';
+
+// Sets defensive response headers (CSP, anti-clickjacking, MIME
+// sniffing, referrer policy, HSTS). Mount it before your routes.
+export function headersMiddleware(options) {
+  const headers = securityHeaders(options);
+  return (req, res, next) => {
+    for (const [name, value] of Object.entries(headers)) res.setHeader(name, value);
+    return next();
+  };
+}
+
 export function shieldMiddleware(shield) {
   return (req, res, next) => {
     const bodyText = req.body

